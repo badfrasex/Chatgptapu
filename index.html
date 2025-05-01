@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Camila - Conteúdos VIP</title>
+  <title>Camila - Conteúdos Exclusivos</title>
   <style>
     body {
       margin: 0;
@@ -116,10 +116,7 @@
     }
 
     async function enviarParaChatGPT(mensagemUsuario) {
-      const respostaInicial = "Hummm... gostou do que viu? Tenho algo especial pra você.";
-      addMensagem(respostaInicial, "bot");
-      falar(respostaInicial);
-
+      // Envia a mensagem do usuário para a IA sem resposta prévia
       const payload = {
         model: "gpt-3.5-turbo",
         messages: [
@@ -142,6 +139,7 @@
 
       const dados = await resposta.json();
       const mensagemIA = dados.choices[0].message.content;
+
       addMensagem(mensagemIA, "bot");
       falar(mensagemIA);
     }
