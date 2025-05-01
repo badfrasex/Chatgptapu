@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Camila - Conteúdos VIP</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #e5ddd5;
+    }
+    .chat-container {
+      max-width: 600px;
+      margin: auto;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+    }
+    .chat-header {
+      background: #075e54;
+      color: white;
+      padding: 16px;
+      font-size: 18px;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      background: #ece5dd;
+    }
+    .message {
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+    .user {
+      background: #dcf8c6;
+      align-self: flex-end;
+    }
+    .bot {
+      background: #fff;
+      align-self: flex-start;
+    }
+    .chat-input {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 20px;
+      outline: none;
+      font-size: 16px;
+    }
+    .chat-input button {
+      background: #075e54;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      margin-left: 8px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .file-label {
+      background: #25d366;
+      color: white;
+      padding: 10px;
+      border-radius: 20px;
+      margin-right: 8px;
+      cursor: pointer;
+    }
+    .chat-input input[type="file"] {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">Camila - Conteúdos Exclusivos</div>
+    <div class="chat-messages" id="chat"></div>
+    <form class="chat-input" id="form">
+      <label for="comprovante" class="file-label">📎</label>
+      <input type="file" id="comprovante" accept="image/*">
+      <input type="text" id="input" placeholder="Digite sua mensagem..." autocomplete="off" />
+      <button type="submit">Enviar</button>
+    </form>
+  </div>
+
+  <script>
+    const chat = document.getElementById("chat");
+    const form = document.getElementById("form");
+    const input = document.getElementById("input");
+    const comprovante = document.getElementById("comprovante");
+
+    const API_KEY = "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";
+
+    function addMensagem(texto, classe) {
+      const div = document.createElement("div");
+      div.className = "message " + classe;
+      div.textContent = texto;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function falar(texto) {
+      const voz = new SpeechSynthesisUtterance(texto);
+      voz.lang = "pt-BR";
+      voz.pitch = 1.2;
+      voz.rate = 1;
+      speechSynthesis.speak(voz);
+    }
+
+    async function enviarParaChatGPT(mensagemUsuario) {
+      const respostaInicial = "Hummm... gostou do que viu? Tenho algo especial pra você.";
+      addMensagem(respostaInicial, "bot");
+      falar(respostaInicial);
+
+      const payload = {
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: "Você é Camila, uma mulher sensual, educada e provocante que vende conteúdo adulto. Sempre que possível, incentive o pagamento para liberar os conteúdos VIP. Seja simpática, criativa e insistente, sem ser grosseira."
+          },
+          { role: "user", content: mensagemUsuario }
+        ]
+      };
+
+      const resposta = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const dados = await resposta.json();
+      const mensagemIA = dados.choices[0].message.content;
+      addMensagem(mensagemIA, "bot");
+      falar(mensagemIA);
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const texto = input.value.trim();
+      if (!texto) return;
+      addMensagem(texto, "user");
+      input.value = "";
+      enviarParaChatGPT(texto);
+    });
+
+    comprovante.addEventListener("change", () => {
+      const arquivo = comprovante.files[0];
+      if (!arquivo) return;
+
+      const reader = new FileReader();
+      reader.onload = function () {
+        const img = document.createElement("img");
+        img.src = reader.result;
+        img.style.maxWidth = "60%";
+        img.style.borderRadius = "10px";
+        img.style.margin = "5px 0";
+        const div = document.createElement("div");
+        div.className = "message user";
+        div.appendChild(img);
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+
+        // Simula verificação do nome no comprovante
+        setTimeout(() => {
+          const nome = prompt("Digite o nome que aparece no comprovante:");
+          if (nome.toLowerCase().includes("roseli francisca neto")) {
+            addMensagem("Pagamento confirmado, amor. Agora você merece o melhor do meu pacote VIP...", "bot");
+            falar("Pagamento confirmado, amor. Agora você merece o melhor do meu pacote VIP...");
+            enviarFotosVIP();
+          } else {
+            addMensagem("Humm... não reconheci o nome no comprovante. Verifica se fez o Pix para froseli550@gmail.com", "bot");
+          }
+        }, 2000);
+      };
+      reader.readAsDataURL(arquivo);
+    });
+
+    function enviarFotosVIP() {
+      const fotos = [
+        "https://via.placeholder.com/200x300?text=Foto+VIP+1",
+        "https://via.placeholder.com/200x300?text=Foto+VIP+2",
+        "https://via.placeholder.com/200x300?text=Foto+VIP+3"
+      ];
+      fotos.forEach(link => {
+        const img = document.createElement("img");
+        img.src = link;
+        img.style.maxWidth = "60%";
+        img.style.borderRadius = "10px";
+        img.style.margin = "5px 0";
+        const div = document.createElement("div");
+        div.className = "message bot";
+        div.appendChild(img);
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+      });
+    }
+  </script>
+</body>
+</html>
